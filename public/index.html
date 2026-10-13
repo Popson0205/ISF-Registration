@@ -13,6 +13,7 @@ background-image:radial-gradient(circle at 1px 1px,rgba(255,255,255,.12) 1.5px,t
 main{max-width:1020px;margin:0 auto;padding:28px 18px 60px;display:grid;grid-template-columns:1fr 1.1fr;gap:28px;align-items:start}
 @media(max-width:820px){main{grid-template-columns:1fr}}
 .hero{color:#fff;padding-top:8px}
+.org{display:inline-flex;align-items:center;gap:12px;background:#fff;color:var(--ink);padding:6px 18px 6px 6px;border-radius:40px;font-size:13px;line-height:1.25;margin-bottom:18px}.org b{font-size:15px}
 .hero h1{font-size:clamp(34px,6vw,58px);line-height:1;margin:0 0 14px;font-weight:800;letter-spacing:-.02em}
 .hero h1 span{color:var(--gold)}
 .hero p{font-size:17px;line-height:1.5;margin:0 0 10px;max-width:38ch;color:#DCE0F5}
@@ -40,6 +41,7 @@ canvas{width:100%;height:auto;border-radius:8px;border:1px solid var(--line);tou
 <body>
 <main>
 <section class="hero">
+  <div class="org"><img src="/logo.png" alt="Ido-Osun Scholars' Forum logo" width="64" height="64"><span>Organised by<br><b>Ido-Osun Scholars' Forum</b></span></div>
   <h1>1st Ido-Osun <span>Digital Summit</span></h1>
   <p>Two days of digital skills, workshops and connections for our community.</p>
   <p>Register, add your photo, and get a ready-to-post frame that tells your people you'll be there.</p>
@@ -101,13 +103,14 @@ const CONFIG = {
   date: "December 2026",          // replace with exact dates
   venue: "Ido-Osun, Osun State",   // replace with exact venue
   hashtags: "#IdoOsunDigitalSummit #IdoOsunDigital #DigitalOsun",
-  sponsor: "Co-sponsored by GeoEstate",
+  organiser: "Ido-Osun Scholars' Forum",
   API_URL: "/api/register"
 };
 /* -------------------------------- */
 const $=id=>document.getElementById(id);
 $('facts').innerHTML=`<div><b>When</b> ${CONFIG.date}</div><div><b>Where</b> ${CONFIG.venue}</div><div><b>Format</b> 2 days · summit &amp; workshops</div>`;
 
+const logo=new Image();logo.onload=()=>draw();logo.src='/logo.png';
 let img=null, zoom=1, ox=0, oy=0, person={};
 const cv=$('c'), ctx=cv.getContext('2d');
 const W=1080,H=1350, PX=140, PY=200, PW=800, PH=870;
@@ -163,10 +166,17 @@ function draw(){
   ctx.textAlign='center';ctx.textBaseline='alphabetic';ctx.fillStyle='#fff';
   let size=70;ctx.font=fontStr(800,size);const nm=person.name||'Your Name';
   while(ctx.measureText(nm).width>W-140&&size>34){size-=2;ctx.font=fontStr(800,size)}
-  ctx.fillText(nm,W/2,PY+PH+95);
+  ctx.fillText(nm,W/2,PY+PH+82);
   const rl=[person.role,person.org].filter(Boolean).join('  ·  ');
-  if(rl){ctx.fillStyle='#F2B632';ctx.font=fontStr(600,34);ctx.fillText(rl,W/2,PY+PH+145)}
-  ctx.fillStyle='#B9C0E8';ctx.font=fontStr(400,26);ctx.fillText(CONFIG.sponsor,W/2,H-62);
+  if(rl){ctx.fillStyle='#F2B632';ctx.font=fontStr(600,34);ctx.fillText(rl,W/2,PY+PH+128)}
+  // organiser badge
+  ctx.font=fontStr(800,28);const label=CONFIG.organiser, tw=ctx.measureText(label).width;
+  ctx.font=fontStr(400,20);const sw=ctx.measureText('ORGANISED BY').width;
+  const textW=Math.max(tw,sw), LS=80, bw=LS+14+textW+34, bx=(W-bw)/2, by=1218;
+  ctx.fillStyle='#fff';rr(bx,by,bw,LS+8,(LS+8)/2);ctx.fill();
+  if(logo.complete&&logo.naturalWidth)ctx.drawImage(logo,bx+8,by+4,LS,LS);
+  ctx.textAlign='left';ctx.fillStyle='#555B7E';ctx.font=fontStr(400,20);ctx.fillText('ORGANISED BY',bx+LS+22,by+36);
+  ctx.fillStyle='#0D1236';ctx.font=fontStr(800,28);ctx.fillText(label,bx+LS+22,by+68);
   ctx.textAlign='left';
 }
 
