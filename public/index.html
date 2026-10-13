@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Register · 1st Ido-Osun Digital Summit</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap">
+<style>
+:root{--ink:#0D1236;--indigo:#1B2A6B;--gold:#F2B632;--paper:#FFFFFF;--mist:#EEF0F8;--line:#D5D9EC;--err:#B3261E}
+*{box-sizing:border-box}
+body{margin:0;font-family:'Bricolage Grotesque','Segoe UI',Arial,sans-serif;color:var(--ink);background:var(--indigo);
+background-image:radial-gradient(circle at 1px 1px,rgba(255,255,255,.12) 1.5px,transparent 0);background-size:26px 26px;min-height:100vh}
+main{max-width:1020px;margin:0 auto;padding:28px 18px 60px;display:grid;grid-template-columns:1fr 1.1fr;gap:28px;align-items:start}
+@media(max-width:820px){main{grid-template-columns:1fr}}
+.hero{color:#fff;padding-top:8px}
+.hero h1{font-size:clamp(34px,6vw,58px);line-height:1;margin:0 0 14px;font-weight:800;letter-spacing:-.02em}
+.hero h1 span{color:var(--gold)}
+.hero p{font-size:17px;line-height:1.5;margin:0 0 10px;max-width:38ch;color:#DCE0F5}
+.facts{margin-top:22px;border-top:2px solid var(--gold);padding-top:14px;display:grid;gap:6px;font-size:15px}
+.facts b{color:var(--gold);display:inline-block;min-width:70px}
+.panel{background:var(--paper);border-radius:14px;padding:26px;box-shadow:0 18px 40px rgba(0,0,0,.28)}
+h2{margin:0 0 4px;font-size:24px}
+.sub{margin:0 0 18px;color:#555B7E;font-size:14px}
+label{display:block;font-weight:600;font-size:14px;margin:14px 0 5px}
+input,select{width:100%;padding:12px;border:1.5px solid var(--line);border-radius:8px;font:inherit;background:#fff;color:var(--ink)}
+input:focus,select:focus,button:focus-visible{outline:3px solid var(--gold);outline-offset:1px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:480px){.row{grid-template-columns:1fr}}
+.hint{font-size:12.5px;color:#555B7E;margin-top:4px}
+.err{color:var(--err);font-size:13px;margin-top:4px;min-height:0}
+.btn{margin-top:22px;width:100%;padding:14px;border:0;border-radius:8px;background:var(--gold);color:var(--ink);font:inherit;font-weight:800;font-size:16px;cursor:pointer}
+.btn.alt{background:var(--mist);margin-top:10px;font-weight:600}
+.btn:disabled{opacity:.6;cursor:wait}
+#done{display:none}
+canvas{width:100%;height:auto;border-radius:8px;border:1px solid var(--line);touch-action:none;cursor:grab;display:block}
+.tools{display:grid;gap:6px;margin-top:12px}
+.note{background:var(--mist);border-radius:8px;padding:10px 12px;font-size:13px;margin-top:12px}
+</style>
+</head>
+<body>
+<main>
+<section class="hero">
+  <h1>1st Ido-Osun <span>Digital Summit</span></h1>
+  <p>Two days of digital skills, workshops and connections for our community.</p>
+  <p>Register, add your photo, and get a ready-to-post frame that tells your people you'll be there.</p>
+  <div class="facts" id="facts"></div>
+</section>
+
+<section class="panel">
+  <div id="reg">
+    <h2>Reserve your seat</h2>
+    <p class="sub">Free to register. Takes about a minute.</p>
+    <form id="f" novalidate>
+      <label for="name">Full name</label>
+      <input id="name" name="name" autocomplete="name" maxlength="40" required>
+      <div class="err" id="e-name"></div>
+      <div class="row">
+        <div><label for="phone">WhatsApp number</label><input id="phone" name="phone" type="tel" autocomplete="tel" placeholder="0803 000 0000" required><div class="err" id="e-phone"></div></div>
+        <div><label for="email">Email</label><input id="email" name="email" type="email" autocomplete="email" required><div class="err" id="e-email"></div></div>
+      </div>
+      <div class="row">
+        <div><label for="role">What do you do?</label><input id="role" name="role" maxlength="34" placeholder="Student, Farmer, Trader…"></div>
+        <div><label for="org">Organisation (optional)</label><input id="org" name="org" maxlength="34"></div>
+      </div>
+      <div class="row">
+        <div><label for="days">Days attending</label>
+          <select id="days" name="days"><option>Both days</option><option>Day 1 only</option><option>Day 2 only</option></select></div>
+        <div><label for="interest">Main interest</label>
+          <select id="interest" name="interest"><option>Digital skills</option><option>Business &amp; e-commerce</option><option>Farming &amp; technology</option><option>Design &amp; content</option><option>Coding &amp; AI</option></select></div>
+      </div>
+      <label for="photo">Your photo (for your frame)</label>
+      <input id="photo" type="file" accept="image/*">
+      <div class="hint">Stays on your device. It is only used to make your image.</div>
+      <button class="btn" id="go" type="submit">Register and get my frame</button>
+      <div class="err" id="e-form"></div>
+    </form>
+  </div>
+
+  <div id="done">
+    <h2 id="thanks">You're in!</h2>
+    <p class="sub">Your photo fits the frame. Drag to reposition, then download and post.</p>
+    <canvas id="c" width="1080" height="1350" aria-label="Your attendee frame preview"></canvas>
+    <div class="tools">
+      <label for="zoom" style="margin:6px 0 0">Zoom photo</label>
+      <input id="zoom" type="range" min="1" max="3" step="0.01" value="1">
+      <label style="margin:8px 0 0;display:flex;gap:8px;align-items:center;font-weight:600"><input id="fit" type="checkbox" style="width:auto"> Show whole photo (no cropping)</label>
+      <label for="photo2" style="margin:6px 0 0">Change photo</label>
+      <input id="photo2" type="file" accept="image/*">
+    </div>
+    <button class="btn" id="dl">Download my image</button>
+    <button class="btn alt" id="cap">Copy caption</button>
+    <div class="note" id="capText"></div>
+  </div>
+</section>
+</main>
+
+<script>
+/* ---------- EDIT THESE ---------- */
+const CONFIG = {
+  eventName: "1st Ido-Osun Digital Summit",
+  date: "December 2026",          // replace with exact dates
+  venue: "Ido-Osun, Osun State",   // replace with exact venue
+  hashtags: "#IdoOsunDigitalSummit #IdoOsunDigital #DigitalOsun",
+  sponsor: "Co-sponsored by GeoEstate",
+  API_URL: "/api/register"
+};
+/* -------------------------------- */
+const $=id=>document.getElementById(id);
+$('facts').innerHTML=`<div><b>When</b> ${CONFIG.date}</div><div><b>Where</b> ${CONFIG.venue}</div><div><b>Format</b> 2 days · summit &amp; workshops</div>`;
+
+let img=null, zoom=1, ox=0, oy=0, person={};
+const cv=$('c'), ctx=cv.getContext('2d');
+const W=1080,H=1350, PX=140, PY=200, PW=800, PH=870;
+let fit=false;
+
+function rr(x,y,w,h,r){ctx.beginPath();ctx.roundRect(x,y,w,h,r)}
+function fontStr(w,s){return `${w} ${s}px 'Bricolage Grotesque','Segoe UI',Arial,sans-serif`}
+function wrap(text,x,y,maxW,lh,maxLines){
+  const words=text.split(' ');let line='',lines=[];
+  for(const w of words){const t=line?line+' '+w:w;if(ctx.measureText(t).width>maxW&&line){lines.push(line);line=w}else line=t}
+  lines.push(line);
+  lines.slice(0,maxLines).forEach((l,i)=>ctx.fillText(l,x,y+i*lh));
+}
+function initials(n){return n.trim().split(/\s+/).slice(0,2).map(s=>s[0]).join('').toUpperCase()}
+
+function draw(){
+  const g=ctx.createLinearGradient(0,0,W,H);g.addColorStop(0,'#1B2A6B');g.addColorStop(1,'#0D1236');
+  ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='rgba(255,255,255,.1)';
+  for(let x=0;x<W;x+=26)for(let y=0;y<H;y+=26)ctx.fillRect(x,y,2,2);
+  ctx.textBaseline='alphabetic';
+  // gold frame
+  ctx.strokeStyle='#F2B632';ctx.lineWidth=6;rr(30,30,W-60,H-60,26);ctx.stroke();
+  // title
+  ctx.fillStyle='#fff';ctx.textAlign='center';ctx.font=fontStr(800,58);ctx.fillText(CONFIG.eventName,W/2,112);
+  ctx.fillStyle='#F2B632';ctx.font=fontStr(600,28);ctx.fillText(CONFIG.date+'  ·  '+CONFIG.venue,W/2,156);
+  // side bands with vertical text
+  ctx.fillStyle='#F2B632';ctx.fillRect(PX-70,PY,70,PH);ctx.fillRect(PX+PW,PY,70,PH);
+  ctx.fillStyle='#0D1236';ctx.font=fontStr(800,46);ctx.textBaseline='middle';
+  if('letterSpacing' in ctx)ctx.letterSpacing='6px';
+  [[PX-35,-Math.PI/2],[PX+PW+35,Math.PI/2]].forEach(([cx,a])=>{
+    ctx.save();ctx.translate(cx,PY+PH/2);ctx.rotate(a);ctx.fillText("I'M ATTENDING",0,3);ctx.restore();
+  });
+  if('letterSpacing' in ctx)ctx.letterSpacing='0px';
+  // photo window
+  ctx.save();ctx.beginPath();ctx.rect(PX,PY,PW,PH);ctx.clip();
+  ctx.fillStyle='#0D1236';ctx.fillRect(PX,PY,PW,PH);
+  if(img){
+    const cover=Math.max(PW/img.width,PH/img.height);
+    if(fit){ // blurred backdrop so the whole photo can show uncropped
+      try{ctx.filter='blur(28px)';ctx.drawImage(img,PX-40,PY-40,PW+80,PH+80);ctx.filter='none'}catch(e){}
+      ctx.fillStyle='rgba(13,18,54,.35)';ctx.fillRect(PX,PY,PW,PH);
+    }
+    const s=(fit?Math.min(PW/img.width,PH/img.height):cover)*zoom, w=img.width*s, h=img.height*s;
+    const mx=Math.max(0,(w-PW)/2), my=Math.max(0,(h-PH)/2);
+    ox=Math.min(Math.max(ox,-mx),mx);oy=Math.min(Math.max(oy,-my),my);
+    ctx.drawImage(img,PX+(PW-w)/2+ox,PY+(PH-h)/2+oy,w,h);
+  }else{
+    ctx.fillStyle='#F2B632';ctx.font=fontStr(800,300);ctx.textAlign='center';ctx.fillText(initials(person.name||'IO'),PX+PW/2,PY+PH/2);
+  }
+  ctx.restore();
+  // name block
+  ctx.textAlign='center';ctx.textBaseline='alphabetic';ctx.fillStyle='#fff';
+  let size=70;ctx.font=fontStr(800,size);const nm=person.name||'Your Name';
+  while(ctx.measureText(nm).width>W-140&&size>34){size-=2;ctx.font=fontStr(800,size)}
+  ctx.fillText(nm,W/2,PY+PH+95);
+  const rl=[person.role,person.org].filter(Boolean).join('  ·  ');
+  if(rl){ctx.fillStyle='#F2B632';ctx.font=fontStr(600,34);ctx.fillText(rl,W/2,PY+PH+145)}
+  ctx.fillStyle='#B9C0E8';ctx.font=fontStr(400,26);ctx.fillText(CONFIG.sponsor,W/2,H-62);
+  ctx.textAlign='left';
+}
+
+function loadFile(file,cb){
+  if(!file)return;const u=URL.createObjectURL(file),i=new Image();
+  i.onload=()=>{img=i;ox=0;oy=1e6;zoom=1;$('zoom').value=1;draw();cb&&cb()};i.src=u;
+}
+$('photo2').onchange=e=>loadFile(e.target.files[0]);
+$('fit').onchange=e=>{fit=e.target.checked;ox=0;oy=1e6;draw()};
+$('zoom').oninput=e=>{zoom=+e.target.value;draw()};
+
+// drag to reposition
+let drag=null;
+cv.addEventListener('pointerdown',e=>{drag={x:e.clientX,y:e.clientY,ox,oy};cv.setPointerCapture(e.pointerId);cv.style.cursor='grabbing'});
+cv.addEventListener('pointermove',e=>{if(!drag)return;const k=W/cv.getBoundingClientRect().width;ox=drag.ox+(e.clientX-drag.x)*k;oy=drag.oy+(e.clientY-drag.y)*k;draw()});
+cv.addEventListener('pointerup',()=>{drag=null;cv.style.cursor='grab'});
+
+function captionText(){
+  return `I'll be attending the ${CONFIG.eventName} (${CONFIG.date}, ${CONFIG.venue})! Come join me and unlock more digital skills. ${CONFIG.hashtags}`;
+}
+
+// validation + submit
+function setErr(id,m){$('e-'+id).textContent=m||''}
+$('f').addEventListener('submit',async e=>{
+  e.preventDefault();
+  const d=Object.fromEntries(new FormData($('f')).entries());
+  let ok=true;
+  if(!d.name.trim()||d.name.trim().length<3){setErr('name','Enter your full name.');ok=false}else setErr('name');
+  if(!/^(\+?234|0)?[789]\d{9}$/.test(d.phone.replace(/[\s-]/g,''))){setErr('phone','Enter a valid Nigerian number.');ok=false}else setErr('phone');
+  if(!/^\S+@\S+\.\S+$/.test(d.email)){setErr('email','Enter a valid email.');ok=false}else setErr('email');
+  if(!ok)return;
+  $('go').disabled=true;$('go').textContent='Registering…';setErr('form');
+  try{
+    if(CONFIG.API_URL){
+      const r=await fetch(CONFIG.API_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)});
+      if(!r.ok)throw new Error((await r.json().catch(()=>({}))).error||'Registration failed');
+    }else console.info('TEST MODE',d);
+    person=d;
+    await (document.fonts?document.fonts.load("800 40px 'Bricolage Grotesque'"):0);
+    $('reg').style.display='none';$('done').style.display='block';
+    $('thanks').textContent=`You're in, ${d.name.trim().split(' ')[0]}!`;
+    $('capText').textContent=captionText();
+    const pf=$('photo').files[0];
+    pf?loadFile(pf):draw();
+    window.scrollTo({top:0,behavior:'smooth'});
+  }catch(err){
+    setErr('form',err.message+'. Check your connection and try again.');
+    $('go').disabled=false;$('go').textContent='Register and get my frame';
+  }
+});
+
+$('dl').onclick=()=>{
+  cv.toBlob(b=>{const a=document.createElement('a');a.href=URL.createObjectURL(b);
+    a.download=`attending-${(person.name||'summit').trim().toLowerCase().replace(/\W+/g,'-')}.png`;a.click()},'image/png');
+};
+$('cap').onclick=async()=>{
+  try{await navigator.clipboard.writeText(captionText());$('cap').textContent='Caption copied'}catch{$('cap').textContent='Select the caption below to copy'}
+};
+draw();
+</script>
+</body>
+</html>

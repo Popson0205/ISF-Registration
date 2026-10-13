@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Admin · Ido-Osun Digital Summit</title>
+<style>
+:root{--ink:#0D1236;--indigo:#1B2A6B;--gold:#F2B632;--mist:#EEF0F8;--line:#D5D9EC}
+*{box-sizing:border-box}
+body{margin:0;font-family:'Segoe UI',Arial,sans-serif;color:var(--ink);background:var(--mist)}
+header{background:var(--indigo);color:#fff;padding:14px 20px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+header h1{font-size:18px;margin:0}
+.wrap{max-width:1100px;margin:0 auto;padding:20px}
+.login{max-width:340px;margin:12vh auto;background:#fff;padding:24px;border-radius:12px}
+input{width:100%;padding:11px;border:1.5px solid var(--line);border-radius:8px;font:inherit}
+button{padding:10px 14px;border:0;border-radius:8px;background:var(--gold);color:var(--ink);font:inherit;font-weight:700;cursor:pointer}
+button.g{background:#fff;border:1.5px solid var(--line);font-weight:600}
+button.d{background:none;color:#B3261E;padding:4px 8px;font-weight:600}
+input:focus,button:focus-visible{outline:3px solid var(--gold)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:16px}
+.stat{background:#fff;border-radius:10px;padding:14px}
+.stat b{display:block;font-size:30px}
+.bar{display:flex;gap:10px;margin-bottom:12px}
+.tbl{background:#fff;border-radius:10px;overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+th{background:#F7F8FD;font-size:13px}
+.err{color:#B3261E;font-size:14px;margin-top:8px}
+.empty{padding:24px;color:#555B7E}
+</style>
+</head>
+<body>
+<div id="login" class="login">
+  <h2 style="margin-top:0">Admin sign in</h2>
+  <label for="pw" style="font-size:14px;font-weight:600">Password</label>
+  <input id="pw" type="password" autocomplete="current-password" style="margin:6px 0 12px">
+  <button id="in" style="width:100%">Sign in</button>
+  <div class="err" id="lerr"></div>
+</div>
+
+<div id="app" hidden>
+  <header><h1>1st Ido-Osun Digital Summit · Registrations</h1><button class="g" id="out">Sign out</button></header>
+  <div class="wrap">
+    <div class="stats">
+      <div class="stat"><b id="s-total">0</b>Registered</div>
+      <div class="stat"><b id="s-today">0</b>Last 24 hours</div>
+      <div class="stat"><b id="s-d1">0</b>Attending Day 1</div>
+      <div class="stat"><b id="s-d2">0</b>Attending Day 2</div>
+    </div>
+    <div class="bar">
+      <input id="q" type="search" placeholder="Search name, email, phone or organisation">
+      <button id="csv">Export CSV</button>
+    </div>
+    <div class="tbl"><table>
+      <thead><tr><th>Name</th><th>Phone</th><th>Email</th><th>Role</th><th>Organisation</th><th>Days</th><th>Interest</th><th>Registered</th><th></th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table><div class="empty" id="empty" hidden>No registrations match.</div></div>
+  </div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+let token=sessionStorage.getItem('t')||'';
+const api=async(url,opt={})=>{
+  const r=await fetch(url,{...opt,headers:{'Content-Type':'application/json',Authorization:'Bearer '+token,...(opt.headers||{})}});
+  if(r.status===401&&token){signOut();throw new Error('Session expired')}
+  return r;
+};
+function signOut(){token='';sessionStorage.removeItem('t');$('app').hidden=true;$('login').style.display='block'}
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+async function load(){
+  const r=await api('/api/admin/registrations?q='+encodeURIComponent($('q').value));
+  const d=await r.json();
+  $('s-total').textContent=d.stats.total;$('s-today').textContent=d.stats.today;
+  $('s-d1').textContent=d.stats.day1;$('s-d2').textContent=d.stats.day2;
+  $('empty').hidden=d.rows.length>0;
+  $('rows').innerHTML=d.rows.map(r=>`<tr><td>${esc(r.name)}</td><td>${esc(r.phone)}</td><td>${esc(r.email)}</td><td>${esc(r.role)}</td><td>${esc(r.org)}</td><td>${esc(r.days)}</td><td>${esc(r.interest)}</td><td>${new Date(r.created_at).toLocaleString()}</td><td><button class="d" data-id="${r.id}" data-n="${esc(r.name)}">Delete</button></td></tr>`).join('');
+}
+function show(){$('login').style.display='none';$('app').hidden=false;load().catch(()=>{})}
+$('in').onclick=async()=>{
+  $('lerr').textContent='';
+  const r=await fetch('/api/admin/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:$('pw').value})});
+  const d=await r.json();
+  if(!r.ok){$('lerr').textContent=d.error;return}
+  token=d.token;sessionStorage.setItem('t',token);$('pw').value='';show();
+};
+$('pw').addEventListener('keydown',e=>{if(e.key==='Enter')$('in').click()});
+$('out').onclick=signOut;
+let t;$('q').oninput=()=>{clearTimeout(t);t=setTimeout(load,250)};
+$('rows').onclick=async e=>{
+  const b=e.target.closest('button[data-id]');if(!b)return;
+  if(!confirm('Delete '+b.dataset.n+'? This cannot be undone.'))return;
+  await api('/api/admin/registrations/'+b.dataset.id,{method:'DELETE'});load();
+};
+$('csv').onclick=async()=>{
+  const r=await api('/api/admin/export.csv');const a=document.createElement('a');
+  a.href=URL.createObjectURL(await r.blob());a.download='ido-osun-summit-registrations.csv';a.click();
+};
+if(token)show();
+</script>
+</body>
+</html>
